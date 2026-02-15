@@ -3,197 +3,1055 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulatore Conto Termico 3.0 - Arquati Eco Living</title>
+    <title>Conto Termico 3.0 - Simulatore Incentivi GSE</title>
     <style>
-        :root { --primary: #27ae60; --secondary: #2c3e50; --bg: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: #333; line-height: 1.6; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h1 { color: var(--secondary); text-align: center; border-bottom: 3px solid var(--primary); padding-bottom: 10px; }
-        .steps-indicator { display: flex; justify-content: space-between; margin-bottom: 30px; font-weight: bold; font-size: 0.85em; color: #999; }
-        .steps-indicator div.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
-        .step { display: none; }
-        .step.active { display: block; }
-        label { display: block; margin: 20px 0 5px; font-weight: 600; color: var(--secondary); }
-        select, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
-        .btn-group { display: flex; justify-content: space-between; margin-top: 30px; }
-        button { padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-next { background: var(--primary); color: white; }
-        .btn-prev { background: #95a5a6; color: white; }
-        .result-box { background: #e8f6ef; border-left: 5px solid var(--primary); padding: 20px; margin-top: 20px; border-radius: 4px; }
-        .checklist { font-size: 0.9em; background: #fff8e1; border: 1px solid #ffe082; padding: 15px; border-radius: 6px; }
-        .warning { color: #e74c3c; font-size: 0.85em; margin-top: 5px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --primary: #2563eb; --primary-dark: #1e40af; --secondary: #10b981;
+    --danger: #ef4444; --warning: #f59e0b; --success: #10b981;
+    --bg-light: #f8fafc; --bg-white: #ffffff; --text-dark: #1e293b;
+    --text-gray: #64748b; --border: #e2e8f0;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1); --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: var(--shadow-lg); position: relative; }
+header h1 { font-size: 2em; margin-bottom: 5px; }
+header p { opacity: 0.9; font-size: 0.95em; }
+.user-info { position: absolute; top: 20px; right: 30px; font-size: 0.9em; }
+.user-info a { color: white; text-decoration: none; margin-left: 10px; padding: 5px 12px; background: rgba(255,255,255,0.2); border-radius: 5px; transition: all 0.3s; }
+.user-info a:hover { background: rgba(255,255,255,0.3); }
+
+.main-nav { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+.nav-btn { flex: 1; min-width: 200px; padding: 15px 20px; background: var(--bg-white); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 1em; font-weight: 500; transition: all 0.3s; color: var(--text-dark); }
+.nav-btn:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+.module { display: none; background: var(--bg-white); padding: 30px; border-radius: 12px; box-shadow: var(--shadow); }
+.module.active { display: block; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.progress-bar { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; }
+.progress-bar::before { content: ''; position: absolute; top: 25px; left: 0; right: 0; height: 3px; background: var(--border); z-index: 0; }
+.progress-step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
+.step-number { width: 50px; height: 50px; border-radius: 50%; background: var(--bg-light); border: 3px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2em; margin-bottom: 10px; transition: all 0.3s; }
+.progress-step.active .step-number { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37,99,235,0.2); }
+.progress-step.completed .step-number { background: var(--success); border-color: var(--success); color: white; }
+.step-label { font-size: 0.85em; color: var(--text-gray); text-align: center; }
+.progress-step.active .step-label { color: var(--primary); font-weight: 600; }
+
+.form-group { margin-bottom: 25px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-dark); }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 15px; border: 2px solid var(--border); border-radius: 8px; font-size: 1em; transition: all 0.3s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+.form-group input[readonly] { background: var(--bg-light); cursor: not-allowed; }
+
+.interventi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+.intervento-card { background: var(--bg-light); border: 3px solid var(--border); border-radius: 12px; padding: 25px; text-align: center; cursor: pointer; transition: all 0.3s; }
+.intervento-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.intervento-card.selected { background: var(--primary); color: white; border-color: var(--primary); }
+.intervento-icon { font-size: 3em; margin-bottom: 15px; }
+.intervento-card h3 { margin-bottom: 8px; font-size: 1.2em; }
+.intervento-card p { font-size: 0.9em; opacity: 0.8; }
+
+.btn-group { display: flex; gap: 15px; justify-content: flex-end; margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--border); }
+button { padding: 12px 30px; border: none; border-radius: 8px; font-size: 1em; font-weight: 500; cursor: pointer; transition: all 0.3s; }
+.btn-next, .btn-save { background: var(--primary); color: white; }
+.btn-next:hover, .btn-save:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.btn-prev { background: var(--bg-light); color: var(--text-dark); border: 2px solid var(--border); }
+.btn-prev:hover { background: var(--border); }
+.btn-action { background: var(--secondary); color: white; }
+.btn-action:hover { background: #059669; transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.calcolo-container { min-height: 300px; }
+.calcolo-loading { text-align: center; padding: 60px 20px; }
+.spinner { width: 60px; height: 60px; border: 5px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.result-box { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 40px; border-radius: 12px; text-align: center; margin-bottom: 30px; }
+.result-box h3 { font-size: 1.3em; margin-bottom: 15px; opacity: 0.9; }
+.incentivo-ammontare { font-size: 3em; font-weight: bold; }
+.result-details { background: var(--bg-light); padding: 25px; border-radius: 12px; margin-bottom: 20px; }
+.detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.detail-row:last-child { border-bottom: none; }
+.detail-row.highlight { background: #fef3c7; padding: 15px; margin: 10px -10px; border-radius: 8px; font-size: 1.1em; }
+.coverage-bar { height: 30px; background: var(--border); border-radius: 15px; overflow: hidden; position: relative; }
+.coverage-fill { height: 100%; background: var(--success); transition: width 1s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 15px; color: white; font-weight: bold; width: 0; }
+
+.disclaimer { background: #fef3c7; border-left: 4px solid var(--warning); padding: 20px; margin: 20px 0; border-radius: 8px; font-size: 0.95em; }
+.riepilogo-sections { display: grid; gap: 20px; }
+.riepilogo-section { background: var(--bg-light); padding: 20px; border-radius: 8px; border-left: 4px solid var(--primary); }
+.riepilogo-section h3 { margin-bottom: 15px; color: var(--primary); }
+.riepilogo-section p { margin-bottom: 8px; }
+.highlight-section { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left-color: var(--success); }
+.big-number { font-size: 1.3em; color: var(--success); }
+
+.filters { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+.filters input, .filters select { flex: 1; min-width: 150px; padding: 10px 15px; border: 2px solid var(--border); border-radius: 8px; }
+.btn-filter { background: var(--primary); color: white; padding: 10px 25px; }
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: white; }
+thead { background: var(--bg-light); }
+th { padding: 15px; text-align: left; font-weight: 600; border-bottom: 2px solid var(--border); }
+td { padding: 15px; border-bottom: 1px solid var(--border); }
+tbody tr:hover { background: var(--bg-light); }
+.status-badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 500; }
+.status-simulazione { background: #dbeafe; color: #1e40af; }
+.status-in-corso { background: #fef3c7; color: #92400e; }
+.status-inviata-gse { background: #e0e7ff; color: #3730a3; }
+.status-liquidata { background: #d1fae5; color: #065f46; }
+.action-btn { padding: 6px 12px; margin: 0 3px; font-size: 0.85em; border-radius: 5px; background: var(--primary); color: white; }
+
+.simulazione-selector { margin-bottom: 25px; }
+.simulazione-selector select { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1em; }
+.checklist-items { display: grid; gap: 15px; }
+.checklist-item { background: var(--bg-light); padding: 20px; border-radius: 8px; border-left: 4px solid var(--border); }
+.checklist-item.completed { border-color: var(--success); }
+.checklist-header { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+.checklist-checkbox { width: 24px; height: 24px; cursor: pointer; }
+.checklist-status { margin-top: 10px; }
+.checklist-status select { width: 100%; padding: 8px; border: 2px solid var(--border); border-radius: 6px; }
+.checklist-notes { margin-top: 10px; }
+.checklist-notes textarea { width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 6px; min-height: 60px; }
+
+.config-tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border); }
+.config-tab { padding: 12px 25px; background: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 500; color: var(--text-gray); }
+.config-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.config-panel { padding: 20px; }
+.config-example { background: var(--bg-light); padding: 20px; border-radius: 8px; margin-top: 20px; }
+.config-example h4 { margin-bottom: 15px; }
+.config-example label { display: inline-block; width: 150px; margin: 10px 0; }
+.config-example input { padding: 8px; border: 2px solid var(--border); border-radius: 6px; width: 150px; }
+
+.admin-only { display: none; }
+body.admin .admin-only { display: block; }
+
+@media (max-width: 768px) {
+    .container { padding: 10px; }
+    header { padding: 20px; }
+    header h1 { font-size: 1.5em; }
+    .user-info { position: static; margin-top: 15px; }
+    .main-nav { flex-direction: column; }
+    .nav-btn { min-width: 100%; }
+    .interventi-grid { grid-template-columns: 1fr; }
+    .progress-bar { flex-wrap: wrap; }
+    .step-label { font-size: 0.75em; }
+    .btn-group { flex-direction: column; }
+    .filters { flex-direction: column; }
+    .incentivo-ammontare { font-size: 2em; }
+}
     </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>🔥 Conto Termico 3.0</h1>
+            <p>Simulatore Incentivi GSE - 2M Digital Consulting</p>
+            <div class="user-info">
+                <span id="userRole">Agente</span> | <a href="#" id="logoutBtn">Logout</a>
+            </div>
+        </header>
 
-<div class="container">
-    <h1>⚡ Simulatore Conto Termico 3.0</h1>
-    
-    <div class="steps-indicator">
-        <div id="ind-1" class="active">1. CLIENTE</div>
-        <div id="ind-2">2. INTERVENTO</div>
-        <div id="ind-3">3. TECNICI</div>
-        <div id="ind-4">4. RISULTATO</div>
-    </div>
+        <nav class="main-nav">
+            <button class="nav-btn active" data-module="nuova-simulazione">➕ Nuova Simulazione</button>
+            <button class="nav-btn" data-module="archivio">📁 Archivio Simulazioni</button>
+            <button class="nav-btn" data-module="checklist">✅ Checklist GSE</button>
+            <button class="nav-btn admin-only" data-module="configurazione">⚙️ Configurazione</button>
+        </nav>
 
-    <!-- STEP 1: DATI CLIENTE -->
-    <div class="step active" id="step-1">
-        <label>Tipo Soggetto Responsabile</label>
-        <select id="tipo-soggetto">
-            <option value="privato">Privato / Condominio</option>
-            <option value="pa">Pubblica Amministrazione</option>
-        </select>
+        <div id="nuova-simulazione" class="module active">
+            <div class="progress-bar">
+                <div class="progress-step active" data-step="1"><div class="step-number">1</div><div class="step-label">Cliente</div></div>
+                <div class="progress-step" data-step="2"><div class="step-number">2</div><div class="step-label">Intervento</div></div>
+                <div class="progress-step" data-step="3"><div class="step-number">3</div><div class="step-label">Dati Tecnici</div></div>
+                <div class="progress-step" data-step="4"><div class="step-number">4</div><div class="step-label">Calcolo</div></div>
+                <div class="progress-step" data-step="5"><div class="step-number">5</div><div class="step-label">Riepilogo</div></div>
+            </div>
 
-        <label>Zona Climatica (Comune)</label>
-        <select id="zona-climatica">
-            <option value="600">Zona A (600 ore)</option>
-            <option value="850">Zona B (850 ore)</option>
-            <option value="1100">Zona C (1100 ore)</option>
-            <option value="1400">Zona D (1400 ore)</option>
-            <option value="1700">Zona E (1700 ore)</option>
-            <option value="1800">Zona F (1800 ore)</option>
-        </select>
-        <div class="btn-group">
-            <span></span>
-            <button class="btn-next" onclick="changeStep(2)">Avanti</button>
+            <div class="step-content" id="step1" style="display: block;">
+                <h2>Step 1 - Dati Cliente e Edificio</h2>
+                <form id="form-step1">
+                    <div class="form-group">
+                        <label>Tipo Soggetto *</label>
+                        <select id="tipoSoggetto" required>
+                            <option value="">Seleziona...</option>
+                            <option value="privato">Privato</option>
+                            <option value="condominio">Condominio</option>
+                            <option value="pmi">Impresa / PMI</option>
+                            <option value="pa">Pubblica Amministrazione</option>
+                            <option value="comune-piccolo">Comune ≤ 15.000 abitanti</option>
+                            <option value="ets">Altro ente (ETS, ecc.)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Destinazione d'uso edificio *</label>
+                        <select id="destinazioneUso" required>
+                            <option value="">Seleziona...</option>
+                            <option value="residenziale">Residenziale</option>
+                            <option value="terziario">Terziario / Commerciale</option>
+                            <option value="industriale">Produttivo / Industriale</option>
+                            <option value="pubblico">Edificio Pubblico</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Comune *</label>
+                        <input type="text" id="comune" list="comuni-list" placeholder="Inizia a digitare..." required>
+                        <datalist id="comuni-list"></datalist>
+                    </div>
+                    <div class="form-group">
+                        <label>Zona Climatica</label>
+                        <input type="text" id="zonaClimatica" readonly placeholder="Derivata automaticamente">
+                    </div>
+                    <div class="form-group">
+                        <label>Stato Proprietà *</label>
+                        <select id="statoProprietà" required>
+                            <option value="proprietario">Proprietario</option>
+                            <option value="affittuario">Affittuario con consenso proprietario</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nome/Riferimento Cliente</label>
+                        <input type="text" id="nomeCliente" placeholder="Es: Mario Rossi / Pratica 2026-001">
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn-next" onclick="nextStep(2)">Avanti →</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="step-content" id="step2" style="display: none;">
+                <h2>Step 2 - Tipo di Intervento</h2>
+                <div class="interventi-grid">
+                    <div class="intervento-card" data-intervento="pdc"><div class="intervento-icon">🔥</div><h3>Pompa di Calore</h3><p>Sostituzione generatore con PDC</p></div>
+                    <div class="intervento-card" data-intervento="ibrido"><div class="intervento-icon">⚡</div><h3>Sistema Ibrido</h3><p>PDC + Caldaia condensazione</p></div>
+                    <div class="intervento-card" data-intervento="biomassa"><div class="intervento-icon">🌲</div><h3>Caldaia Biomassa</h3><p>Stufa o caldaia a pellet/legna</p></div>
+                    <div class="intervento-card" data-intervento="solare-termico"><div class="intervento-icon">☀️</div><h3>Solare Termico</h3><p>Collettori per ACS/riscaldamento</p></div>
+                    <div class="intervento-card" data-intervento="scaldacqua-pdc"><div class="intervento-icon">💧</div><h3>Scaldacqua PDC</h3><p>Boiler a pompa di calore</p></div>
+                    <div class="intervento-card" data-intervento="isolamento"><div class="intervento-icon">🏠</div><h3>Isolamento</h3><p>Cappotto, copertura, solaio</p></div>
+                    <div class="intervento-card" data-intervento="serramenti"><div class="intervento-icon">🪟</div><h3>Serramenti</h3><p>Finestre e porte</p></div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn-prev" onclick="prevStep(1)">← Indietro</button>
+                    <button type="button" class="btn-next" onclick="nextStep(3)" disabled id="btn-step2">Avanti →</button>
+                </div>
+            </div>
+
+            <div class="step-content" id="step3" style="display: none;">
+                <h2>Step 3 - Dati Tecnici</h2>
+                <form id="form-step3">
+                    <div id="dati-tecnici-container"></div>
+                    <div class="btn-group">
+                        <button type="button" class="btn-prev" onclick="prevStep(2)">← Indietro</button>
+                        <button type="button" class="btn-next" onclick="calcolaIncentivo()">Calcola Incentivo →</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="step-content" id="step4" style="display: none;">
+                <h2>Step 4 - Calcolo Incentivo</h2>
+                <div class="calcolo-container">
+                    <div class="calcolo-loading"><div class="spinner"></div><p>Elaborazione in corso...</p></div>
+                    <div class="calcolo-result" style="display: none;">
+                        <div class="result-box"><h3>💰 Incentivo Stimato</h3><div class="incentivo-ammontare">€ <span id="incentivo-totale">0</span></div></div>
+                        <div class="result-details">
+                            <div class="detail-row"><span>Costo Intervento:</span><strong>€ <span id="costo-intervento">0</span></strong></div>
+                            <div class="detail-row"><span>Incentivo CT 3.0:</span><strong>€ <span id="incentivo-calcolato">0</span></strong></div>
+                            <div class="detail-row"><span>Copertura:</span><strong><span id="percentuale-copertura">0</span>%</strong></div>
+                            <div class="detail-row highlight"><span>Quota Cliente:</span><strong>€ <span id="quota-cliente">0</span></strong></div>
+                            <div class="detail-row"><span>Erogazione:</span><strong><span id="durata-erogazione">-</span></strong></div>
+                        </div>
+                        <div class="coverage-bar"><div class="coverage-fill" id="coverage-bar"></div></div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn-prev" onclick="prevStep(3)">← Indietro</button>
+                    <button type="button" class="btn-next" onclick="nextStep(5)">Vai al Riepilogo →</button>
+                </div>
+            </div>
+
+            <div class="step-content" id="step5" style="display: none;">
+                <h2>Step 5 - Riepilogo Simulazione</h2>
+                <div id="riepilogo-content"></div>
+                <div class="disclaimer">⚠️ <strong>Nota importante:</strong> L'incentivo calcolato è una stima indicativa basata su parametri standard. L'importo effettivo verrà definito solo dal GSE a seguito della presentazione e valutazione completa della pratica.</div>
+                <div class="form-group"><label>Email destinatario PDF</label><input type="email" id="email-pdf" placeholder="cliente@esempio.it"></div>
+                <div class="btn-group">
+                    <button type="button" class="btn-prev" onclick="prevStep(4)">← Indietro</button>
+                    <button type="button" class="btn-action" onclick="esportaPDF()">📄 Esporta PDF</button>
+                    <button type="button" class="btn-action" onclick="inviaEmail()">✉️ Invia Email</button>
+                    <button type="button" class="btn-save" onclick="salvaSimulazione()">💾 Salva Simulazione</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="archivio" class="module">
+            <h2>📁 Archivio Simulazioni</h2>
+            <div class="filters">
+                <input type="text" id="filter-cliente" placeholder="🔍 Cerca cliente...">
+                <input type="date" id="filter-data">
+                <select id="filter-intervento">
+                    <option value="">Tutti gli interventi</option>
+                    <option value="pdc">Pompa di Calore</option>
+                    <option value="ibrido">Sistema Ibrido</option>
+                    <option value="scaldacqua-pdc">Scaldacqua PDC</option>
+                    <option value="solare-termico">Solare Termico</option>
+                    <option value="isolamento">Isolamento</option>
+                </select>
+                <select id="filter-stato">
+                    <option value="">Tutti gli stati</option>
+                    <option value="simulazione">Solo Simulazione</option>
+                    <option value="in-corso">In Corso</option>
+                    <option value="inviata-gse">Inviata GSE</option>
+                    <option value="liquidata">Liquidata</option>
+                </select>
+                <button class="btn-filter" onclick="filtraSimulazioni()">Filtra</button>
+            </div>
+            <div class="table-container">
+                <table id="archivio-table">
+                    <thead><tr><th>Data</th><th>Cliente</th><th>Intervento</th><th>Incentivo</th><th>Copertura</th><th>Quota Cliente</th><th>Stato</th><th>Azioni</th></tr></thead>
+                    <tbody id="archivio-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="checklist" class="module">
+            <h2>✅ Checklist Pratica GSE</h2>
+            <div class="simulazione-selector"><label>Seleziona Simulazione:</label><select id="select-simulazione-checklist"><option value="">-- Seleziona --</option></select></div>
+            <div id="checklist-content"><div class="checklist-items"></div></div>
+        </div>
+
+        <div id="configurazione" class="module">
+            <h2>⚙️ Configurazione Parametri</h2>
+            <div class="config-tabs">
+                <button class="config-tab active" data-tab="tipologie">Tipologie Intervento</button>
+                <button class="config-tab" data-tab="parametri">Parametri Calcolo</button>
+                <button class="config-tab" data-tab="cataloghi">Cataloghi Prodotti</button>
+                <button class="config-tab" data-tab="testi">Testi e Disclaimer</button>
+            </div>
+            <div id="config-content"></div>
         </div>
     </div>
 
-    <!-- STEP 2: TIPO INTERVENTO -->
-    <div class="step" id="step-2">
-        <label>Tipologia di Intervento GSE</label>
-        <select id="categoria-intervento" onchange="filterProducts()">
-            <option value="">Seleziona...</option>
-            <option value="2A">2.A Pompe di Calore (Aria/Acqua, Aria/Aria)</option>
-            <option value="2D">2.D Scaldacqua a Pompa di Calore</option>
-            <option value="2E">2.E Sistemi Ibridi Factory Made</option>
-        </select>
-        <div class="btn-group">
-            <button class="btn-prev" onclick="changeStep(1)">Indietro</button>
-            <button class="btn-next" onclick="changeStep(3)">Avanti</button>
-        </div>
-    </div>
-
-    <!-- STEP 3: DATI TECNICI -->
-    <div class="step" id="step-3">
-        <label>Seleziona Prodotto dal Catalogo</label>
-        <select id="prodotto-selezionato">
-            <!-- Popolato dinamicamente -->
-        </select>
-
-        <label>Spesa Totale Preventivata (€ IVA inclusa)</label>
-        <input type="number" id="spesa-totale" placeholder="Es: 5000">
-        
-        <div class="btn-group">
-            <button class="btn-prev" onclick="changeStep(2)">Indietro</button>
-            <button class="btn-next" onclick="calculate()">Calcola Incentivo</button>
-        </div>
-    </div>
-
-    <!-- STEP 4: CALCOLO E RIEPILOGO -->
-    <div class="step" id="step-4">
-        <div class="result-box">
-            <h3>Risultato della Simulazione</h3>
-            <p>Incentivo Totale Stimato: <strong id="res-incentivo" style="font-size: 1.4em;">€ 0,00</strong></p>
-            <p>Costo Netto per il Cliente: <span id="res-costo-netto">€ 0,00</span></p>
-            <p>Modalità Erogazione: <strong id="res-rata">Unica rata (entro 90gg)</strong></p>
-        </div>
-
-        <h4>Checklist Pratica GSE (Obbligatoria)</h4>
-        <div class="checklist">
-            <input type="checkbox" checked disabled> Foto targa generatore sostituito (Ante-Operam) [3]<br>
-            <input type="checkbox" checked disabled> Foto targa nuovo generatore installato [4]<br>
-            <input type="checkbox" checked disabled> Certificato smaltimento vecchio impianto [5]<br>
-            <input type="checkbox" checked disabled> Fatture e Bonifici con causale specifica [6]<br>
-            <input type="checkbox" checked disabled> Libretto d'impianto aggiornato [7]
-        </div>
-
-        <div class="btn-group">
-            <button class="btn-prev" onclick="changeStep(3)">Modifica</button>
-            <button class="btn-next" onclick="window.print()">Stampa PDF</button>
-        </div>
-    </div>
-</div>
-
-<script>
-// DATABASE PRODOTTI ESTRATTO DAI CATALOGHI ALLEGATI [8-11]
-const catalog = [
-    // Pompe di Calore (2.A)
-    { id: 1, cat: "2A", marca: "AERMEC", mod: "HMI 100", pn: 10.10, cop: 4.63, ci: 0.16 },
-    { id: 2, cat: "2A", marca: "ARISTON", mod: "NIMBUS POCKET 150 R32", pn: 15.00, cop: 4.70, ci: 0.11 },
-    { id: 3, cat: "2A", marca: "DAIKIN", mod: "Altherma 3 H HT 16kW", pn: 11.60, cop: 4.50, ci: 0.16 },
-    // Scaldacqua (2.D)
-    { id: 4, cat: "2D", marca: "ARISTON", mod: "NUOS PLUS 250 (Basamento)", pn: 2.35, cop: 3.35, ci: 0.40, limit: 1500 },
-    { id: 5, cat: "2D", marca: "AERMEC", mod: "SWP 301 (Murale)", pn: 1.95, cop: 2.91, ci: 0.40, limit: 700 },
-    // Sistemi Ibridi (2.E) - k coefficiente 1.25 [12]
-    { id: 6, cat: "2E", marca: "ATAG", mod: "ENERGION ODM 50 i35", pn: 5.00, cop: 5.00, ci: 0.150, k: 1.25 },
-    { id: 7, cat: "2E", marca: "BIASI", mod: "ADATTA 08 MONO", pn: 8.41, cop: 4.62, ci: 0.150, k: 1.25 }
+    <script>
+// DATABASE E PARAMETRI
+const zoneClimatiche = {'Piacenza':'E','Milano':'E','Roma':'D','Napoli':'C','Palermo':'B','Torino':'E','Bologna':'E','Firenze':'D','Bari':'C','Genova':'D','Venezia':'E','Verona':'E','Catania':'B','Messina':'B','Padova':'E','Trieste':'E','Brescia':'E','Parma':'E','Modena':'E','Reggio Emilia':'E'};
+const oreUtilizzoZona = {'A':600,'B':850,'C':1100,'D':1400,'E':1700,'F':1800};
+const catalogoPDC = [
+    {marca:'AERMEC',modello:'HMI 100',tipo:'Aria/Acqua',potenza:10.10,inverter:true,cop:4.63},
+    {marca:'ARISTON',modello:'NIMBUS POCKET 150 R32',tipo:'Aria/Acqua',potenza:15.00,inverter:true,cop:4.70},
+    {marca:'DAIKIN',modello:'Altherma 3 H HT 16kW',tipo:'Aria/Acqua',potenza:11.60,inverter:true,cop:4.50},
+    {marca:'ALPHA INNOTEC',modello:'LWAV 122R3-HV',tipo:'Aria/Acqua',potenza:11.00,inverter:true,cop:4.58},
+    {marca:'CLIVET',modello:'Edge EVO 2.0 - EXC',tipo:'Aria/Acqua',potenza:4.20,inverter:true,cop:5.10},
+    {marca:'AERMEC',modello:'WRL 031 XH',tipo:'Acqua/Acqua',potenza:9.90,inverter:false,cop:5.22},
+    {marca:'PANASONIC',modello:'Commerciale PAC_R32',tipo:'Aria/Aria',potenza:4.00,inverter:true,cop:5.41},
+    {marca:'IDEMA',modello:'POMPA MONOBLOCCO',tipo:'Aria/Acqua',potenza:8.40,inverter:true,cop:5.05}
+];
+const catalogoScaldacqua = [
+    {marca:'ARISTON',modello:'NUOS PLUS 250',potenza:2.35,cop:3.35,capacita:250},
+    {marca:'AERMEC',modello:'SWP 301',potenza:1.95,cop:2.91,capacita:273},
+    {marca:'DAIKIN',modello:'Monobloc-DHW HP 260',potenza:1.82,cop:3.38,capacita:260},
+    {marca:'HAIER',modello:'HP150M5 Monoblocco',potenza:0.72,cop:3.14,capacita:149},
+    {marca:'ITALTHERM',modello:'Aquasmart 100',potenza:1.00,cop:2.70,capacita:87},
+    {marca:'ROSSATO',modello:'Air Combo PRO 300',potenza:5.56,cop:3.39,capacita:295},
+    {marca:'TESY',modello:'AquaThermica Compact',potenza:0.92,cop:3.90,capacita:150}
+];
+const catalogoIbridi = [
+    {marca:'BAXI',modelloPDC:'AWHP2R 12',modelloCaldaia:'POWER 1.32',potenzaPDC:12.1,cop:4.95,potenzaCaldaia:32.00},
+    {marca:'BERETTA',modelloPDC:'HYDRO UNIT M 006',modelloCaldaia:'EXCLUSIVE 35 R',potenzaPDC:6.35,cop:4.95,potenzaCaldaia:31.39},
+    {marca:'BIASI',modelloPDC:'ADATTA 08 MONO',modelloCaldaia:'RINNOVA ADAPTIVE',potenzaPDC:8.41,cop:4.62,potenzaCaldaia:20.70},
+    {marca:'ATAG',modelloPDC:'ENERGION ODM 50',modelloCaldaia:'i35ECZ',potenzaPDC:5.00,cop:5.00,potenzaCaldaia:28.40},
+    {marca:'FERROLI',modelloPDC:'OMNIA S 3.2',modelloCaldaia:'HYBRID 28C 8',potenzaPDC:8.40,cop:5.15,potenzaCaldaia:24.00},
+    {marca:'VIESSMANN',modelloPDC:'Vitocal 100-A',modelloCaldaia:'Vitodens 100-E',potenzaPDC:6.10,cop:4.51,potenzaCaldaia:22.50}
+];
+const parametriCalcolo = {
+    pdc:{Ce:0.11,Ci:0.15,massimaleUnitario:400,percentualeMassima:0.65,percentualePA:1.00,coefficienteK:1.0},
+    ibrido:{Ce:0.11,Ci:0.15,massimaleUnitario:450,percentualeMassima:0.65,percentualePA:1.00,coefficienteK:1.25},
+    'scaldacqua-pdc':{percentuale:0.40,massimale150:700,massimale150Plus:1500,massimale250:700,massimale250Plus:1500},
+    'solare-termico':{coefficienteBase:220,percentualeMassima:0.65,percentualePA:1.00},
+    isolamento:{coefficientePareti:80,coefficienteCopertura:70,coefficienteSolaio:60,percentualeMassima:0.50,percentualePA:0.70},
+    serramenti:{coefficiente:350,percentualeMassima:0.50,percentualePA:0.70}
+};
+const checklistDocumenti = [
+    {id:1,nome:'Documento identità e CF cliente',obbligatorio:true},
+    {id:2,nome:'Titolo di possesso (atto, contratto locazione + consenso)',obbligatorio:true},
+    {id:3,nome:'Dichiarazione di conformità impianto',obbligatorio:true},
+    {id:4,nome:'Scheda tecnica generatore/collettori/isolamento',obbligatorio:true},
+    {id:5,nome:'Asseverazione tecnica intervento (se Pn > 35 kW)',obbligatorio:false},
+    {id:6,nome:'APE pre e post intervento',obbligatorio:false},
+    {id:7,nome:'Foto ante intervento (targhe generatore vecchio)',obbligatorio:true},
+    {id:8,nome:'Foto post intervento (targhe nuovo impianto)',obbligatorio:true},
+    {id:9,nome:'Fatture e bonifici parlanti',obbligatorio:true},
+    {id:10,nome:'Certificato di smaltimento vecchio generatore',obbligatorio:true}
 ];
 
-function changeStep(step) {
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.steps-indicator div').forEach(i => i.classList.remove('active'));
-    document.getElementById('step-' + step).classList.add('active');
-    document.getElementById('ind-' + step).classList.add('active');
+let simulazioni = [];
+let currentStep = 1;
+let currentModule = 'nuova-simulazione';
+let selectedIntervento = null;
+let currentSimulazione = {id:null,data:new Date().toISOString().split('T')[0],cliente:{},intervento:{},datiTecnici:{},risultato:{},stato:'simulazione',checklist:[]};
+
+function getZonaClimatica(comune) { return zoneClimatiche[comune] || 'E'; }
+
+function calcolaIncentivoPDC(potenza, cop, zonaClimatica, tipoSoggetto, costo) {
+    const quf = oreUtilizzoZona[zonaClimatica] || 1700;
+    const params = parametriCalcolo.pdc;
+    const incentivoBase = potenza * quf * params.Ci * (1 - 1/cop);
+    const massimaleAssoluto = potenza * params.massimaleUnitario;
+    const percentuale = (tipoSoggetto === 'comune-piccolo' || tipoSoggetto === 'pa') ? params.percentualePA : params.percentualeMassima;
+    const incentivoPercentuale = costo * percentuale;
+    return Math.round(Math.min(incentivoBase, massimaleAssoluto, incentivoPercentuale));
 }
 
-function filterProducts() {
-    const cat = document.getElementById('categoria-intervento').value;
-    const select = document.getElementById('prodotto-selezionato');
-    select.innerHTML = '<option value="">-- Seleziona Modello --</option>';
-    
-    catalog.filter(p => p.cat === cat).forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.text = `${p.marca} - ${p.mod} (${p.pn} kWt)`;
-        select.appendChild(opt);
+function calcolaIncentivoIbrido(potenzaPDC, cop, zonaClimatica, tipoSoggetto, costo) {
+    const incentivoPDC = calcolaIncentivoPDC(potenzaPDC, cop, zonaClimatica, tipoSoggetto, costo);
+    const params = parametriCalcolo.ibrido;
+    const incentivoConK = incentivoPDC * params.coefficienteK;
+    const limite65 = costo * 0.65;
+    return Math.round(Math.min(incentivoConK, limite65));
+}
+
+function calcolaIncentivoScaldacqua(capacita, costo, classeEnergetica) {
+    const params = parametriCalcolo['scaldacqua-pdc'];
+    const incentivoBase = costo * params.percentuale;
+    let massimale;
+    if (capacita <= 150) {
+        massimale = (classeEnergetica === 'A+' || classeEnergetica === 'A++') ? params.massimale150Plus : params.massimale150;
+    } else {
+        massimale = (classeEnergetica === 'A+' || classeEnergetica === 'A++') ? params.massimale250Plus : params.massimale250;
+    }
+    return Math.round(Math.min(incentivoBase, massimale));
+}
+
+function calcolaIncentivoSolareTermico(superficie, tipoSoggetto, costo) {
+    const params = parametriCalcolo['solare-termico'];
+    const incentivoBase = superficie * params.coefficienteBase;
+    const percentuale = (tipoSoggetto === 'comune-piccolo' || tipoSoggetto === 'pa') ? params.percentualePA : params.percentualeMassima;
+    const limite = costo * percentuale;
+    return Math.round(Math.min(incentivoBase, limite));
+}
+
+function calcolaIncentivoIsolamento(superficie, tipologia, tipoSoggetto, costo) {
+    const params = parametriCalcolo.isolamento;
+    let coefficiente;
+    switch(tipologia) {
+        case 'pareti': coefficiente = params.coefficientePareti; break;
+        case 'copertura': coefficiente = params.coefficienteCopertura; break;
+        case 'solaio': coefficiente = params.coefficienteSolaio; break;
+        default: coefficiente = params.coefficientePareti;
+    }
+    const incentivoBase = superficie * coefficiente;
+    const percentuale = (tipoSoggetto === 'comune-piccolo' || tipoSoggetto === 'pa') ? params.percentualePA : params.percentualeMassima;
+    const limite = costo * percentuale;
+    return Math.round(Math.min(incentivoBase, limite));
+}
+
+function getDurataErogazione(importo, potenza = 0) {
+    if (importo <= 5000) return 'Unica soluzione (90 giorni)';
+    else if (potenza > 35) return '5 anni (rate annuali)';
+    else if (importo <= 15000) return '2 anni (rate annuali)';
+    else return '5 anni (rate annuali)';
+}
+
+// INIZIALIZZAZIONE
+document.addEventListener('DOMContentLoaded', function() {
+    initApp();
+    loadSimulazioniFromStorage();
+    setupEventListeners();
+    populateComuniDatalist();
+});
+
+function initApp() {
+    const userRole = localStorage.getItem('userRole') || 'agente';
+    document.getElementById('userRole').textContent = userRole === 'admin' ? 'Admin' : 'Agente';
+    if (userRole === 'admin') document.body.classList.add('admin');
+}
+
+function setupEventListeners() {
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', function() { switchModule(this.dataset.module); });
+    });
+    document.querySelectorAll('.intervento-card').forEach(card => {
+        card.addEventListener('click', function() { selectIntervento(this.dataset.intervento); });
+    });
+    const comuneInput = document.getElementById('comune');
+    if (comuneInput) {
+        comuneInput.addEventListener('change', function() {
+            const zona = getZonaClimatica(this.value);
+            document.getElementById('zonaClimatica').value = 'Zona ' + zona;
+            currentSimulazione.cliente.zonaClimatica = zona;
+        });
+    }
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (confirm('Sei sicuro di voler uscire?')) {
+            localStorage.clear();
+            location.reload();
+        }
     });
 }
 
-function calculate() {
-    const prodId = document.getElementById('prodotto-selezionato').value;
-    const spesa = parseFloat(document.getElementById('spesa-totale').value) || 0;
-    const quf = parseFloat(document.getElementById('zona-climatica').value);
-    
-    if (!prodId || spesa <= 0) {
-        alert("Inserire tutti i dati tecnici e la spesa.");
+function populateComuniDatalist() {
+    const datalist = document.getElementById('comuni-list');
+    Object.keys(zoneClimatiche).forEach(comune => {
+        const option = document.createElement('option');
+        option.value = comune;
+        datalist.appendChild(option);
+    });
+}
+
+function switchModule(moduleName) {
+    document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(moduleName).classList.add('active');
+    document.querySelector('[data-module="'+moduleName+'"]').classList.add('active');
+    currentModule = moduleName;
+    if (moduleName === 'archivio') loadArchivio();
+    else if (moduleName === 'checklist') loadChecklistSimulazioni();
+    else if (moduleName === 'configurazione') loadConfigurazione();
+}
+
+function nextStep(step) {
+    if (!validateCurrentStep()) {
+        alert('Compila tutti i campi obbligatori');
         return;
     }
-
-    const prod = catalog.find(p => p.id == prodId);
-    let incentivoTotale = 0;
-
-    if (prod.cat === "2A" || prod.cat === "2E") {
-        // FORMULA GSE: Pn * Quf * Ci * (1 - 1/COP) [13, 14]
-        let ia_tot = prod.pn * quf * prod.ci * (1 - (1 / prod.cop));
-        
-        // Applica coefficiente k=1.25 per Ibridi [12]
-        if (prod.cat === "2E") ia_tot = ia_tot * prod.k;
-        
-        // Erogazione in 2 anni per Pn <= 35kW [12]
-        incentivoTotale = ia_tot * 2;
-    } 
-    else if (prod.cat === "2D") {
-        // FORMULA SCALDACQUA: 40% della spesa con tetti massimi [12, 15]
-        incentivoTotale = Math.min(spesa * 0.40, prod.limit);
-    }
-
-    // REGOLA DEL 65%: L'incentivo non può superare il 65% della spesa [15, 16]
-    const cap65 = spesa * 0.65;
-    if (incentivoTotale > cap65) {
-        incentivoTotale = cap65;
-    }
-
-    // Visualizzazione Risultati
-    document.getElementById('res-incentivo').innerText = "€ " + incentivoTotale.toLocaleString('it-IT', {minimumFractionDigits: 2});
-    document.getElementById('res-costo-netto').innerText = "€ " + (spesa - incentivoTotale).toLocaleString('it-IT', {minimumFractionDigits: 2});
-    
-    // Regola Rata Unica: Sotto i 15.000€ rata unica [15]
-    document.getElementById('res-rata').innerText = incentivoTotale <= 15000 ? "Unica Rata (entro 90gg)" : "Rate annuali (2 o 5 anni)";
-
-    changeStep(4);
+    saveCurrentStepData();
+    document.getElementById('step'+currentStep).style.display = 'none';
+    document.querySelector('[data-step="'+currentStep+'"]').classList.remove('active');
+    document.querySelector('[data-step="'+currentStep+'"]').classList.add('completed');
+    currentStep = step;
+    document.getElementById('step'+step).style.display = 'block';
+    document.querySelector('[data-step="'+step+'"]').classList.add('active');
+    window.scrollTo(0, 0);
 }
-</script>
 
+function prevStep(step) {
+    document.getElementById('step'+currentStep).style.display = 'none';
+    document.querySelector('[data-step="'+currentStep+'"]').classList.remove('active');
+    currentStep = step;
+    document.getElementById('step'+step).style.display = 'block';
+    document.querySelector('[data-step="'+step+'"]').classList.add('active');
+    document.querySelector('[data-step="'+step+'"]').classList.remove('completed');
+    window.scrollTo(0, 0);
+}
+
+function validateCurrentStep() {
+    switch(currentStep) {
+        case 1:
+            return document.getElementById('tipoSoggetto').value && 
+                   document.getElementById('destinazioneUso').value && 
+                   document.getElementById('comune').value;
+        case 2: return selectedIntervento !== null;
+        case 3: return document.getElementById('form-step3').checkValidity();
+        default: return true;
+    }
+}
+
+function saveCurrentStepData() {
+    switch(currentStep) {
+        case 1:
+            currentSimulazione.cliente = {
+                tipoSoggetto: document.getElementById('tipoSoggetto').value,
+                destinazioneUso: document.getElementById('destinazioneUso').value,
+                comune: document.getElementById('comune').value,
+                zonaClimatica: currentSimulazione.cliente.zonaClimatica || 'E',
+                statoProprietà: document.getElementById('statoProprietà').value,
+                nomeCliente: document.getElementById('nomeCliente').value
+            };
+            break;
+        case 2:
+            currentSimulazione.intervento = {tipo: selectedIntervento};
+            break;
+        case 3:
+            saveDatiTecnici();
+            break;
+    }
+}
+
+function selectIntervento(tipo) {
+    selectedIntervento = tipo;
+    document.querySelectorAll('.intervento-card').forEach(card => card.classList.remove('selected'));
+    document.querySelector('[data-intervento="'+tipo+'"]').classList.add('selected');
+    document.getElementById('btn-step2').disabled = false;
+    generateDatiTecniciForm(tipo);
+}
+
+function generateDatiTecniciForm(tipo) {
+    const container = document.getElementById('dati-tecnici-container');
+    let html = '';
+    switch(tipo) {
+        case 'pdc':
+            html = '<h3>Pompa di Calore - Dati Tecnici</h3>' +
+                '<div class="form-group"><label>Seleziona da Catalogo</label><select id="pdc-catalogo"><option value="">-- Scegli modello o compila manualmente --</option>' +
+                catalogoPDC.map((p,i) => '<option value="'+i+'">'+p.marca+' '+p.modello+' - '+p.potenza+' kW - COP '+p.cop+'</option>').join('') +
+                '</select></div>' +
+                '<div class="form-group"><label>Potenza Termica Nominale (kW) *</label><input type="number" id="potenza" step="0.1" min="0" required></div>' +
+                '<div class="form-group"><label>COP / SCOP *</label><input type="number" id="cop" step="0.01" min="2" max="7" required></div>' +
+                '<div class="form-group"><label>Marca e Modello *</label><input type="text" id="marca-modello" required></div>' +
+                '<div class="form-group"><label>Tipo Scambio</label><select id="tipo-scambio"><option value="aria-acqua">Aria/Acqua</option><option value="acqua-acqua">Acqua/Acqua</option><option value="aria-aria">Aria/Aria</option></select></div>' +
+                '<div class="form-group"><label>Generatore Esistente</label><select id="generatore-esistente"><option value="caldaia-tradizionale">Caldaia tradizionale</option><option value="caldaia-gasolio">Caldaia a gasolio</option><option value="stufa">Stufa</option><option value="altro">Altro</option></select></div>' +
+                '<div class="form-group"><label>Costo Complessivo Intervento (€ IVA inclusa) *</label><input type="number" id="costo" step="0.01" min="0" required></div>';
+            break;
+        case 'ibrido':
+            html = '<h3>Sistema Ibrido - Dati Tecnici</h3>' +
+                '<div class="form-group"><label>Seleziona da Catalogo</label><select id="ibrido-catalogo"><option value="">-- Scegli sistema o compila manualmente --</option>' +
+                catalogoIbridi.map((s,i) => '<option value="'+i+'">'+s.marca+' - PDC '+s.potenzaPDC+' kW + Caldaia '+s.potenzaCaldaia+' kW</option>').join('') +
+                '</select></div>' +
+                '<div class="form-group"><label>Potenza PDC (kW) *</label><input type="number" id="potenza-pdc" step="0.1" min="0" required></div>' +
+                '<div class="form-group"><label>COP PDC *</label><input type="number" id="cop" step="0.01" min="2" max="7" required></div>' +
+                '<div class="form-group"><label>Potenza Caldaia (kW) *</label><input type="number" id="potenza-caldaia" step="0.1" min="0" required></div>' +
+                '<div class="form-group"><label>Marca e Modello Sistema *</label><input type="text" id="marca-modello" required></div>' +
+                '<div class="form-group"><label>Costo Complessivo Intervento (€ IVA inclusa) *</label><input type="number" id="costo" step="0.01" min="0" required></div>';
+            break;
+        case 'scaldacqua-pdc':
+            html = '<h3>Scaldacqua a Pompa di Calore - Dati Tecnici</h3>' +
+                '<div class="form-group"><label>Seleziona da Catalogo</label><select id="scaldacqua-catalogo"><option value="">-- Scegli modello o compila manualmente --</option>' +
+                catalogoScaldacqua.map((s,i) => '<option value="'+i+'">'+s.marca+' '+s.modello+' - '+s.capacita+'L - COP '+s.cop+'</option>').join('') +
+                '</select></div>' +
+                '<div class="form-group"><label>Capacità (Litri) *</label><input type="number" id="capacita" step="1" min="50" max="500" required></div>' +
+                '<div class="form-group"><label>COP *</label><input type="number" id="cop" step="0.01" min="2.6" required></div>' +
+                '<div class="form-group"><label>Classe Energetica</label><select id="classe-energetica"><option value="A">A</option><option value="A+">A+</option><option value="A++">A++</option><option value="A+++">A+++</option></select></div>' +
+                '<div class="form-group"><label>Marca e Modello *</label><input type="text" id="marca-modello" required></div>' +
+                '<div class="form-group"><label>Costo Complessivo (€ IVA inclusa) *</label><input type="number" id="costo" step="0.01" min="0" required></div>';
+            break;
+        case 'solare-termico':
+            html = '<h3>Solare Termico - Dati Tecnici</h3>' +
+                '<div class="form-group"><label>Superficie Lorda Collettori (m²) *</label><input type="number" id="superficie" step="0.1" min="0" required></div>' +
+                '<div class="form-group"><label>Destinazione *</label><select id="destinazione"><option value="acs">Acqua Calda Sanitaria (ACS)</option><option value="riscaldamento">Integrazione Riscaldamento</option><option value="piscina">Piscina</option></select></div>' +
+                '<div class="form-group"><label>Tipologia Collettori</label><select id="tipo-collettori"><option value="piano">Piano vetrato</option><option value="sottovuoto">Sottovuoto</option></select></div>' +
+                '<div class="form-group"><label>Costo Complessivo (€ IVA inclusa) *</label><input type="number" id="costo" step="0.01" min="0" required></div>';
+            break;
+        case 'isolamento':
+            html = '<h3>Isolamento Termico - Dati Tecnici</h3>' +
+                '<div class="form-group"><label>Tipologia Intervento *</label><select id="tipologia-isolamento"><option value="pareti">Cappotto Pareti Esterne</option><option value="copertura">Isolamento Copertura</option><option value="solaio">Isolamento Solaio</option></select></div>' +
+                '<div class="form-group"><label>Superficie Intervento (m²) *</label><input type="number" id="superficie" step="0.1" min="0" required></div>' +
+                '<div class="form-group"><label>Trasmittanza Iniziale U (W/m²K)</label><input type="number" id="trasmittanza-iniziale" step="0.01" min="0"></div>' +
+                '<div class="form-group"><label>Trasmittanza Finale U (W/m²K)</label><input type="number" id="trasmittanza-finale" step="0.01" min="0"></div>' +
+                '<div class="form-group"><label>Costo Complessivo (€ IVA inclusa) *</label><input type="number" id="costo" step="0.01" min="0" required></div>';
+            break;
+        case 'serramenti':
+            html = '<h3>Serramenti - Dati Tecnici</h3>' +
+                '<div class="form-group"><label>Superficie Serramenti (m²) *</label><input type="number" id="superficie" step="0.1" min="0" required></div>' +
+                '<div class="form-group"><label>Trasmittanza Iniziale Uw (W/m²K)</label><input type="number" id="trasmittanza-iniziale" step="0.01" min="0"></div>' +
+                '<div class="form-group"><label>Trasmittanza Finale Uw (W/m²K)</label><input type="number" id="trasmittanza-finale" step="0.01" min="0" max="1.3"></div>' +
+                '<div class="form-group"><label>Costo Complessivo (€ IVA inclusa) *</label><input type="number" id="costo" step="0.01" min="0" required></div>';
+            break;
+        case 'biomassa':
+            html = '<h3>Caldaia Biomassa - Dati Tecnici</h3>' +
+                '<div class="form-group"><label>Potenza Nominale (kW) *</label><input type="number" id="potenza" step="0.1" min="0" required></div>' +
+                '<div class="form-group"><label>Marca e Modello *</label><input type="text" id="marca-modello" required></div>' +
+                '<div class="form-group"><label>Costo Complessivo (€ IVA inclusa) *</label><input type="number" id="costo" step="0.01" min="0" required></div>';
+            break;
+    }
+    container.innerHTML = html;
+    setupCatalogoAutofill(tipo);
+}
+
+function setupCatalogoAutofill(tipo) {
+    let selectId = '';
+    switch(tipo) {
+        case 'pdc': selectId = 'pdc-catalogo'; break;
+        case 'ibrido': selectId = 'ibrido-catalogo'; break;
+        case 'scaldacqua-pdc': selectId = 'scaldacqua-catalogo'; break;
+        default: return;
+    }
+    const select = document.getElementById(selectId);
+    if (select) {
+        select.addEventListener('change', function() {
+            if (this.value === '') return;
+            const index = parseInt(this.value);
+            switch(tipo) {
+                case 'pdc':
+                    const pdc = catalogoPDC[index];
+                    document.getElementById('potenza').value = pdc.potenza;
+                    document.getElementById('cop').value = pdc.cop;
+                    document.getElementById('marca-modello').value = pdc.marca + ' ' + pdc.modello;
+                    break;
+                case 'ibrido':
+                    const ibrido = catalogoIbridi[index];
+                    document.getElementById('potenza-pdc').value = ibrido.potenzaPDC;
+                    document.getElementById('cop').value = ibrido.cop;
+                    document.getElementById('potenza-caldaia').value = ibrido.potenzaCaldaia;
+                    document.getElementById('marca-modello').value = ibrido.marca + ' ' + ibrido.modelloPDC + ' + ' + ibrido.modelloCaldaia;
+                    break;
+                case 'scaldacqua-pdc':
+                    const scaldacqua = catalogoScaldacqua[index];
+                    document.getElementById('capacita').value = scaldacqua.capacita;
+                    document.getElementById('cop').value = scaldacqua.cop;
+                    document.getElementById('marca-modello').value = scaldacqua.marca + ' ' + scaldacqua.modello;
+                    break;
+            }
+        });
+    }
+}
+
+function saveDatiTecnici() {
+    const tipo = selectedIntervento;
+    const dati = {tipo: tipo};
+    switch(tipo) {
+        case 'pdc':
+            dati.potenza = parseFloat(document.getElementById('potenza').value);
+            dati.cop = parseFloat(document.getElementById('cop').value);
+            dati.marcaModello = document.getElementById('marca-modello').value;
+            dati.tipoScambio = document.getElementById('tipo-scambio').value;
+            dati.generatoreEsistente = document.getElementById('generatore-esistente').value;
+            dati.costo = parseFloat(document.getElementById('costo').value);
+            break;
+        case 'ibrido':
+            dati.potenzaPDC = parseFloat(document.getElementById('potenza-pdc').value);
+            dati.cop = parseFloat(document.getElementById('cop').value);
+            dati.potenzaCaldaia = parseFloat(document.getElementById('potenza-caldaia').value);
+            dati.marcaModello = document.getElementById('marca-modello').value;
+            dati.costo = parseFloat(document.getElementById('costo').value);
+            break;
+        case 'scaldacqua-pdc':
+            dati.capacita = parseFloat(document.getElementById('capacita').value);
+            dati.cop = parseFloat(document.getElementById('cop').value);
+            dati.classeEnergetica = document.getElementById('classe-energetica').value;
+            dati.marcaModello = document.getElementById('marca-modello').value;
+            dati.costo = parseFloat(document.getElementById('costo').value);
+            break;
+        case 'solare-termico':
+            dati.superficie = parseFloat(document.getElementById('superficie').value);
+            dati.destinazione = document.getElementById('destinazione').value;
+            dati.tipoCollettori = document.getElementById('tipo-collettori').value;
+            dati.costo = parseFloat(document.getElementById('costo').value);
+            break;
+        case 'isolamento':
+            dati.tipologiaIsolamento = document.getElementById('tipologia-isolamento').value;
+            dati.superficie = parseFloat(document.getElementById('superficie').value);
+            dati.trasmittanzaIniziale = document.getElementById('trasmittanza-iniziale').value;
+            dati.trasmittanzaFinale = document.getElementById('trasmittanza-finale').value;
+            dati.costo = parseFloat(document.getElementById('costo').value);
+            break;
+        case 'serramenti':
+            dati.superficie = parseFloat(document.getElementById('superficie').value);
+            dati.trasmittanzaIniziale = document.getElementById('trasmittanza-iniziale').value;
+            dati.trasmittanzaFinale = document.getElementById('trasmittanza-finale').value;
+            dati.costo = parseFloat(document.getElementById('costo').value);
+            break;
+        case 'biomassa':
+            dati.potenza = parseFloat(document.getElementById('potenza').value);
+            dati.marcaModello = document.getElementById('marca-modello').value;
+            dati.costo = parseFloat(document.getElementById('costo').value);
+            break;
+    }
+    currentSimulazione.datiTecnici = dati;
+}
+
+function calcolaIncentivo() {
+    saveDatiTecnici();
+    nextStep(4);
+    document.querySelector('.calcolo-loading').style.display = 'block';
+    document.querySelector('.calcolo-result').style.display = 'none';
+    setTimeout(() => { eseguiCalcolo(); }, 1500);
+}
+
+function eseguiCalcolo() {
+    const tipo = selectedIntervento;
+    const dati = currentSimulazione.datiTecnici;
+    const cliente = currentSimulazione.cliente;
+    const zonaClimatica = cliente.zonaClimatica;
+    const tipoSoggetto = cliente.tipoSoggetto;
+    let incentivo = 0;
+    let costo = dati.costo;
+
+    switch(tipo) {
+        case 'pdc':
+            incentivo = calcolaIncentivoPDC(dati.potenza, dati.cop, zonaClimatica, tipoSoggetto, costo);
+            break;
+        case 'ibrido':
+            incentivo = calcolaIncentivoIbrido(dati.potenzaPDC, dati.cop, zonaClimatica, tipoSoggetto, costo);
+            break;
+        case 'scaldacqua-pdc':
+            incentivo = calcolaIncentivoScaldacqua(dati.capacita, costo, dati.classeEnergetica);
+            break;
+        case 'solare-termico':
+            incentivo = calcolaIncentivoSolareTermico(dati.superficie, tipoSoggetto, costo);
+            break;
+        case 'isolamento':
+            incentivo = calcolaIncentivoIsolamento(dati.superficie, dati.tipologiaIsolamento, tipoSoggetto, costo);
+            break;
+        case 'serramenti':
+            incentivo = calcolaIncentivoIsolamento(dati.superficie, 'pareti', tipoSoggetto, costo);
+            break;
+        case 'biomassa':
+            incentivo = Math.round(costo * 0.50);
+            break;
+    }
+
+    const percentuale = Math.round((incentivo / costo) * 100);
+    const quotaCliente = costo - incentivo;
+    const potenza = dati.potenza || dati.potenzaPDC || 0;
+    const durata = getDurataErogazione(incentivo, potenza);
+
+    currentSimulazione.risultato = {
+        incentivo: incentivo,
+        costo: costo,
+        percentualeCopertura: percentuale,
+        quotaCliente: quotaCliente,
+        durataErogazione: durata
+    };
+
+    mostraRisultati(incentivo, costo, percentuale, quotaCliente, durata);
+}
+
+function mostraRisultati(incentivo, costo, percentuale, quotaCliente, durata) {
+    document.querySelector('.calcolo-loading').style.display = 'none';
+    document.querySelector('.calcolo-result').style.display = 'block';
+    document.getElementById('incentivo-totale').textContent = incentivo.toLocaleString('it-IT');
+    document.getElementById('costo-intervento').textContent = costo.toLocaleString('it-IT');
+    document.getElementById('incentivo-calcolato').textContent = incentivo.toLocaleString('it-IT');
+    document.getElementById('percentuale-copertura').textContent = percentuale;
+    document.getElementById('quota-cliente').textContent = quotaCliente.toLocaleString('it-IT');
+    document.getElementById('durata-erogazione').textContent = durata;
+
+    const bar = document.getElementById('coverage-bar');
+    setTimeout(() => {
+        bar.style.width = percentuale + '%';
+        bar.textContent = percentuale + '%';
+        if (percentuale < 30) bar.style.background = '#f59e0b';
+        else if (percentuale < 60) bar.style.background = 'linear-gradient(90deg, #f59e0b 0%, #10b981 100%)';
+        else bar.style.background = '#10b981';
+    }, 100);
+
+    generaRiepilogo();
+}
+
+function generaRiepilogo() {
+    const cliente = currentSimulazione.cliente;
+    const dati = currentSimulazione.datiTecnici;
+    const risultato = currentSimulazione.risultato;
+
+    const tipiSoggetto = {
+        'privato': 'Privato',
+        'condominio': 'Condominio',
+        'pmi': 'Impresa / PMI',
+        'pa': 'Pubblica Amministrazione',
+        'comune-piccolo': 'Comune ≤ 15.000 abitanti',
+        'ets': 'Altro ente (ETS)'
+    };
+
+    const tipiIntervento = {
+        'pdc': 'Pompa di Calore',
+        'ibrido': 'Sistema Ibrido',
+        'scaldacqua-pdc': 'Scaldacqua a Pompa di Calore',
+        'solare-termico': 'Solare Termico',
+        'isolamento': 'Isolamento Termico',
+        'serramenti': 'Serramenti',
+        'biomassa': 'Caldaia a Biomassa'
+    };
+
+    let datiTecniciHTML = '';
+    switch(dati.tipo) {
+        case 'pdc':
+            datiTecniciHTML = '<p><strong>Marca/Modello:</strong> '+dati.marcaModello+'</p><p><strong>Potenza:</strong> '+dati.potenza+' kW</p><p><strong>COP:</strong> '+dati.cop+'</p><p><strong>Tipo:</strong> '+dati.tipoScambio+'</p>';
+            break;
+        case 'ibrido':
+            datiTecniciHTML = '<p><strong>Sistema:</strong> '+dati.marcaModello+'</p><p><strong>Potenza PDC:</strong> '+dati.potenzaPDC+' kW</p><p><strong>COP:</strong> '+dati.cop+'</p><p><strong>Potenza Caldaia:</strong> '+dati.potenzaCaldaia+' kW</p>';
+            break;
+        case 'scaldacqua-pdc':
+            datiTecniciHTML = '<p><strong>Modello:</strong> '+dati.marcaModello+'</p><p><strong>Capacità:</strong> '+dati.capacita+' Litri</p><p><strong>COP:</strong> '+dati.cop+'</p><p><strong>Classe:</strong> '+dati.classeEnergetica+'</p>';
+            break;
+        case 'solare-termico':
+            datiTecniciHTML = '<p><strong>Superficie Collettori:</strong> '+dati.superficie+' m²</p><p><strong>Destinazione:</strong> '+dati.destinazione+'</p><p><strong>Tipo:</strong> '+dati.tipoCollettori+'</p>';
+            break;
+        case 'isolamento':
+            datiTecniciHTML = '<p><strong>Tipologia:</strong> '+dati.tipologiaIsolamento+'</p><p><strong>Superficie:</strong> '+dati.superficie+' m²</p>';
+            break;
+        case 'serramenti':
+            datiTecniciHTML = '<p><strong>Superficie Serramenti:</strong> '+dati.superficie+' m²</p>';
+            break;
+    }
+
+    const html = '<div class="riepilogo-sections">' +
+        '<div class="riepilogo-section"><h3>📋 Dati Cliente</h3>' +
+        '<p><strong>Riferimento:</strong> '+(cliente.nomeCliente || 'Non specificato')+'</p>' +
+        '<p><strong>Tipo Soggetto:</strong> '+tipiSoggetto[cliente.tipoSoggetto]+'</p>' +
+        '<p><strong>Comune:</strong> '+cliente.comune+' (Zona Climatica '+cliente.zonaClimatica+')</p>' +
+        '<p><strong>Destinazione:</strong> '+cliente.destinazioneUso+'</p></div>' +
+        '<div class="riepilogo-section"><h3>🔧 Intervento</h3>' +
+        '<p><strong>Tipologia:</strong> '+tipiIntervento[dati.tipo]+'</p>' +
+        datiTecniciHTML +
+        '<p><strong>Costo Totale:</strong> € '+dati.costo.toLocaleString('it-IT')+'</p></div>' +
+        '<div class="riepilogo-section highlight-section"><h3>💰 Risultato Economico</h3>' +
+        '<p class="big-number">Incentivo CT 3.0: <strong>€ '+risultato.incentivo.toLocaleString('it-IT')+'</strong></p>' +
+        '<p><strong>Copertura:</strong> '+risultato.percentualeCopertura+'%</p>' +
+        '<p><strong>Quota a carico cliente:</strong> € '+risultato.quotaCliente.toLocaleString('it-IT')+'</p>' +
+        '<p><strong>Modalità erogazione:</strong> '+risultato.durataErogazione+'</p></div></div>';
+
+    document.getElementById('riepilogo-content').innerHTML = html;
+}
+
+function esportaPDF() {
+    alert('Funzionalità Export PDF: in produzione verrebbe generato un PDF professionale con i dati della simulazione.\n\nDati salvati in memoria.');
+    console.log('Dati simulazione:', currentSimulazione);
+}
+
+function inviaEmail() {
+    const email = document.getElementById('email-pdf').value;
+    if (!email) {
+        alert('Inserisci un indirizzo email valido');
+        return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Formato email non valido');
+        return;
+    }
+    alert('Email inviata con successo a: '+email+'\n\nIn produzione, il PDF verrebbe inviato via SMTP o servizio email.');
+}
+
+function salvaSimulazione() {
+    if (!currentSimulazione.id) {
+        currentSimulazione.id = 'SIM-' + Date.now();
+    }
+    currentSimulazione.data = new Date().toISOString().split('T')[0];
+    let simulazioni = JSON.parse(localStorage.getItem('simulazioni') || '[]');
+    const index = simulazioni.findIndex(s => s.id === currentSimulazione.id);
+    if (index >= 0) {
+        simulazioni[index] = {...currentSimulazione};
+    } else {
+        simulazioni.push({...currentSimulazione});
+    }
+    localStorage.setItem('simulazioni', JSON.stringify(simulazioni));
+    alert('✅ Simulazione salvata con successo!\n\nID: ' + currentSimulazione.id);
+    setTimeout(() => {
+        if (confirm('Vuoi creare una nuova simulazione?')) {
+            location.reload();
+        }
+    }, 500);
+}
+
+function loadSimulazioniFromStorage() {
+    const saved = localStorage.getItem('simulazioni');
+    if (saved) simulazioni = JSON.parse(saved);
+}
+
+function loadArchivio() {
+    const tbody = document.getElementById('archivio-body');
+    if (simulazioni.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">Nessuna simulazione salvata</td></tr>';
+        return;
+    }
+    const tipiIntervento = {
+        'pdc': 'Pompa di Calore',
+        'ibrido': 'Sistema Ibrido',
+        'scaldacqua-pdc': 'Scaldacqua PDC',
+        'solare-termico': 'Solare Termico',
+        'isolamento': 'Isolamento',
+        'serramenti': 'Serramenti'
+    };
+    tbody.innerHTML = simulazioni.map(sim => '<tr>' +
+        '<td>'+sim.data+'</td>' +
+        '<td>'+(sim.cliente.nomeCliente || 'N/D')+'</td>' +
+        '<td>'+(tipiIntervento[sim.datiTecnici.tipo] || sim.datiTecnici.tipo)+'</td>' +
+        '<td>€ '+(sim.risultato.incentivo || 0).toLocaleString('it-IT')+'</td>' +
+        '<td>'+(sim.risultato.percentualeCopertura || 0)+'%</td>' +
+        '<td>€ '+(sim.risultato.quotaCliente || 0).toLocaleString('it-IT')+'</td>' +
+        '<td><span class="status-badge status-'+sim.stato+'">'+sim.stato+'</span></td>' +
+        '<td><button class="action-btn" onclick="visualizzaSimulazione(''+sim.id+'')">👁️ Vedi</button>' +
+        '<button class="action-btn" onclick="duplicaSimulazione(''+sim.id+'')">📋 Duplica</button>' +
+        '<button class="action-btn" onclick="eliminaSimulazione(''+sim.id+'')">🗑️</button></td>' +
+        '</tr>').join('');
+}
+
+function filtraSimulazioni() {
+    loadArchivio();
+}
+
+function visualizzaSimulazione(id) {
+    const sim = simulazioni.find(s => s.id === id);
+    if (!sim) return;
+    alert('Visualizzazione simulazione:\n\n' + JSON.stringify(sim, null, 2));
+}
+
+function duplicaSimulazione(id) {
+    const sim = simulazioni.find(s => s.id === id);
+    if (!sim) return;
+    currentSimulazione = {...sim, id: null};
+    switchModule('nuova-simulazione');
+    alert('Simulazione duplicata! Puoi modificarla e salvarla nuovamente.');
+}
+
+function eliminaSimulazione(id) {
+    if (!confirm('Sei sicuro di voler eliminare questa simulazione?')) return;
+    simulazioni = simulazioni.filter(s => s.id !== id);
+    localStorage.setItem('simulazioni', JSON.stringify(simulazioni));
+    loadArchivio();
+}
+
+function loadChecklistSimulazioni() {
+    const select = document.getElementById('select-simulazione-checklist');
+    select.innerHTML = '<option value="">-- Seleziona --</option>';
+    simulazioni.forEach(sim => {
+        const option = document.createElement('option');
+        option.value = sim.id;
+        option.textContent = sim.data+' - '+(sim.cliente.nomeCliente || 'N/D')+' - '+sim.datiTecnici.tipo;
+        select.appendChild(option);
+    });
+    select.addEventListener('change', function() {
+        if (this.value) loadChecklistPerSimulazione(this.value);
+    });
+}
+
+function loadChecklistPerSimulazione(simId) {
+    const sim = simulazioni.find(s => s.id === simId);
+    if (!sim) return;
+    if (!sim.checklist || sim.checklist.length === 0) {
+        sim.checklist = checklistDocumenti.map(doc => ({...doc, stato: 'da-richiedere', note: ''}));
+    }
+    const container = document.querySelector('.checklist-items');
+    container.innerHTML = sim.checklist.map((item, index) => 
+        '<div class="checklist-item '+(item.stato === 'caricato' ? 'completed' : '')+'">' +
+        '<div class="checklist-header">' +
+        '<input type="checkbox" class="checklist-checkbox" '+(item.stato === 'caricato' ? 'checked' : '')+' ' +
+        'onchange="updateChecklistItem(''+simId+'', '+index+', 'checkbox', this.checked)">' +
+        '<strong>'+item.nome+(item.obbligatorio ? ' *' : '')+'</strong></div>' +
+        '<div class="checklist-status"><select onchange="updateChecklistItem(''+simId+'', '+index+', 'stato', this.value)">' +
+        '<option value="da-richiedere" '+(item.stato === 'da-richiedere' ? 'selected' : '')+'>Da Richiedere</option>' +
+        '<option value="ricevuto" '+(item.stato === 'ricevuto' ? 'selected' : '')+'>Ricevuto</option>' +
+        '<option value="caricato" '+(item.stato === 'caricato' ? 'selected' : '')+'>Caricato su Portale</option>' +
+        '<option value="non-richiesto" '+(item.stato === 'non-richiesto' ? 'selected' : '')+'>Non Richiesto</option>' +
+        '</select></div>' +
+        '<div class="checklist-notes"><textarea placeholder="Note..." onchange="updateChecklistItem(''+simId+'', '+index+', 'note', this.value)">'+item.note+'</textarea></div>' +
+        '</div>').join('');
+}
+
+function updateChecklistItem(simId, itemIndex, field, value) {
+    const sim = simulazioni.find(s => s.id === simId);
+    if (!sim) return;
+    if (field === 'checkbox') {
+        sim.checklist[itemIndex].stato = value ? 'caricato' : 'da-richiedere';
+    } else if (field === 'stato') {
+        sim.checklist[itemIndex].stato = value;
+    } else if (field === 'note') {
+        sim.checklist[itemIndex].note = value;
+    }
+    localStorage.setItem('simulazioni', JSON.stringify(simulazioni));
+}
+
+function loadConfigurazione() {
+    document.getElementById('config-content').innerHTML = 
+        '<div class="config-panel"><h3>⚙️ Pannello Configurazione</h3>' +
+        '<p>Questa sezione consente di modificare parametri di calcolo, cataloghi prodotti e testi.</p>' +
+        '<p><strong>Nota:</strong> In ambiente di produzione, questa funzionalità sarebbe collegata al database backend.</p>' +
+        '<div class="config-example"><h4>Parametri di Calcolo PDC</h4>' +
+        '<label>Coefficiente Ce:</label><input type="number" value="0.11" step="0.01"><br>' +
+        '<label>Coefficiente Ci:</label><input type="number" value="0.15" step="0.01"><br>' +
+        '<label>Massimale €/kW:</label><input type="number" value="400" step="10"><br>' +
+        '<label>% Massima Privati:</label><input type="number" value="65" step="1">%<br>' +
+        '<button class="btn-save mt-20">Salva Modifiche</button></div></div>';
+    document.querySelectorAll('.config-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+}
+    </script>
 </body>
 </html>
