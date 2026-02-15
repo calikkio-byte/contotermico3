@@ -8,11 +8,19 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-    --primary: #2563eb; --primary-dark: #1e40af; --secondary: #10b981;
-    --danger: #ef4444; --warning: #f59e0b; --success: #10b981;
-    --bg-light: #f8fafc; --bg-white: #ffffff; --text-dark: #1e293b;
-    --text-gray: #64748b; --border: #e2e8f0;
-    --shadow: 0 1px 3px rgba(0,0,0,0.1); --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+    --primary: #dc2626;
+    --primary-dark: #991b1b;
+    --secondary: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --success: #10b981;
+    --bg-light: #f8fafc;
+    --bg-white: #ffffff;
+    --text-dark: #1e293b;
+    --text-gray: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
 }
 
 body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
@@ -38,7 +46,7 @@ header p { opacity: 0.9; font-size: 0.95em; }
 .progress-bar::before { content: ''; position: absolute; top: 25px; left: 0; right: 0; height: 3px; background: var(--border); z-index: 0; }
 .progress-step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
 .step-number { width: 50px; height: 50px; border-radius: 50%; background: var(--bg-light); border: 3px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2em; margin-bottom: 10px; transition: all 0.3s; }
-.progress-step.active .step-number { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37,99,235,0.2); }
+.progress-step.active .step-number { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(220,38,38,0.2); }
 .progress-step.completed .step-number { background: var(--success); border-color: var(--success); color: white; }
 .step-label { font-size: 0.85em; color: var(--text-gray); text-align: center; }
 .progress-step.active .step-label { color: var(--primary); font-weight: 600; }
@@ -46,7 +54,7 @@ header p { opacity: 0.9; font-size: 0.95em; }
 .form-group { margin-bottom: 25px; }
 .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-dark); }
 .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 15px; border: 2px solid var(--border); border-radius: 8px; font-size: 1em; transition: all 0.3s; }
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
 .form-group input[readonly] { background: var(--bg-light); cursor: not-allowed; }
 
 .interventi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
@@ -87,7 +95,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .riepilogo-section { background: var(--bg-light); padding: 20px; border-radius: 8px; border-left: 4px solid var(--primary); }
 .riepilogo-section h3 { margin-bottom: 15px; color: var(--primary); }
 .riepilogo-section p { margin-bottom: 8px; }
-.highlight-section { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left-color: var(--success); }
+.highlight-section { background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-left-color: var(--success); }
 .big-number { font-size: 1.3em; color: var(--success); }
 
 .filters { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
@@ -100,7 +108,7 @@ th { padding: 15px; text-align: left; font-weight: 600; border-bottom: 2px solid
 td { padding: 15px; border-bottom: 1px solid var(--border); }
 tbody tr:hover { background: var(--bg-light); }
 .status-badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 500; }
-.status-simulazione { background: #dbeafe; color: #1e40af; }
+.status-simulazione { background: #fee2e2; color: #991b1b; }
 .status-in-corso { background: #fef3c7; color: #92400e; }
 .status-inviata-gse { background: #e0e7ff; color: #3730a3; }
 .status-liquidata { background: #d1fae5; color: #065f46; }
@@ -455,7 +463,6 @@ function getDurataErogazione(importo, potenza = 0) {
     else return '5 anni (rate annuali)';
 }
 
-// INIZIALIZZAZIONE
 document.addEventListener('DOMContentLoaded', function() {
     initApp();
     loadSimulazioniFromStorage();
